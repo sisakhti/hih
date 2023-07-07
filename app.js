@@ -18,7 +18,7 @@ function debug(...message){
     console.log(message);
 }
 
-app.all('/proxy', async function (req, res, next) {
+app.all('/api', async function (req, res, next) {
     debug('Start handling request at ', Date.now());
 
     if(req.headers['x-dest'] === undefined){
