@@ -6,15 +6,21 @@ const http = require('node:http');
 const https = require('node:https');
 var app = express();
 
-
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+function debug(...message){
+    if(!process.env.DEBUG) return;
+
+    console.log(message);
+}
+
 app.all('/proxy', async function (req, res, next) {
+    debug('Start handling request at ', Date.now());
+
     if(req.headers['x-dest'] === undefined){
         res.send('DEST header not set');
         return;
@@ -47,8 +53,8 @@ app.all('/proxy', async function (req, res, next) {
         method: method,
         url: host,
         headers: allHeaders,
-        httpAgent:new http.Agent({keepAlive:true, timeout: 600}),
-        httpsAgent:new https.Agent({keepAlive:true, timeout: 600}),
+        httpAgent:new http.Agent({keepAlive:true, timeout: 30000}),
+        httpsAgent:new https.Agent({keepAlive:true, timeout: 30000}),
     }
 
     if(method.toLowerCase() == 'get'){
@@ -58,10 +64,15 @@ app.all('/proxy', async function (req, res, next) {
     }
 
     try{
+        debug('Sending axios request to target address at ', Date.now());
+        debug('axios config, ', config)
         const axiosResp = await axios.request(config);
-
+        debug('Received response from target at ', Date.now());
         res.status(axiosResp.status).send(axiosResp.data);
+        debug('Send back response to user at ', Date.now());
     }catch (err){
+        debug('Received error from target at ', Date.now());
+        debug('The error message is: ', err.toString());
         if(err.response){
             res.status(err.response.status).send(err.response.data);
         }else{
