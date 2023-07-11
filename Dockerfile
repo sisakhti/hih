@@ -2,6 +2,8 @@ FROM node:lts-slim
 
 ENV NODE_ENV production
 
+ENV DEBUG 0
+
 WORKDIR /usr/src/app
 
 COPY package*.json ./
