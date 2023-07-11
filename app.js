@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 function debug(...message){
     if(!process.env.DEBUG) return;
 
-    console.log(message);
+    //console.log(message);
 }
 
 app.all('/api', async function (req, res, next) {
